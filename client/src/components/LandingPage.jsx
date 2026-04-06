@@ -63,7 +63,7 @@ export default function LandingPage() {
                   }}
                 >
                   <img
-                    src={`/Social-Network-Game/assets/heads/${icon.id}.png`}
+                    src={`/Social-Network-Game/assets/heads/CharacterIcons-${icon.id}.png`}
                     alt={icon.label}
                     className="w-full h-full object-contain"
                     draggable={false}

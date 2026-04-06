@@ -1,17 +1,16 @@
 import { create } from 'zustand'
 
 const HEAD_ICONS = [
-  { id: 'blank',  label: 'Blank',  color: '#7DD8D8' }, // cyan plain circle
-  { id: 'belle',  label: 'Belle',  color: '#FFD700' }, // yellow bell
-  { id: 'crux',   label: 'Crux',   color: '#FF69D6' }, // pink plus cross
-  { id: 'cookie', label: 'Cookie', color: '#C4944A' }, // brown cookie bite
-  { id: 'tri',    label: 'Tri',    color: '#6B5CFF' }, // purple inverted triangle
-  { id: 'bloom',  label: 'Bloom',  color: '#B39DDB' }, // light purple flower
-  { id: 'pop',    label: 'Pop',    color: '#FF2222' }, // red lollipop
-  { id: 'luna',   label: 'Luna',   color: '#1A1A6E' }, // dark navy moon
-  { id: 'loop',   label: 'Loop',   color: '#29A8E0' }, // blue ring/donut
-  { id: 'sol',    label: 'Sol',    color: '#F5A623' }, // orange starburst
-  { id: 'hex',    label: 'Hex',    color: '#32A84A' }, // green X
+  { id: 'Belle',   label: 'Belle',   color: '#FFD700' },
+  { id: 'Chris',   label: 'Chris',   color: '#6B8EFF' },
+  { id: 'Cookie',  label: 'Cookie',  color: '#C4944A' },
+  { id: 'Del',     label: 'Del',     color: '#FF69D6' },
+  { id: 'Flora',   label: 'Flora',   color: '#B39DDB' },
+  { id: 'Kap',     label: 'Kap',     color: '#6B5CFF' },
+  { id: 'Luna',    label: 'Luna',    color: '#1A1A6E' },
+  { id: 'Owen',    label: 'Owen',    color: '#29A8E0' },
+  { id: 'Sunny',   label: 'Sunny',   color: '#F5A623' },
+  { id: 'Xavier',  label: 'Xavier',  color: '#32A84A' },
 ]
 
 const REPUTATION_TITLES = [

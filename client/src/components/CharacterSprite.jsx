@@ -60,7 +60,7 @@ export default function CharacterSprite({
             }}
           >
             <img
-              src={`/Social-Network-Game/assets/heads/${headId}.png`}
+              src={`/Social-Network-Game/assets/heads/CharacterIcons-${headId}.png`}
               alt={username}
               style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
               draggable={false}
