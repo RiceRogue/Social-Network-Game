@@ -1,14 +1,17 @@
 import { create } from 'zustand'
 
 const HEAD_ICONS = [
-  { id: 'belle',   label: 'Belle',   color: '#FF6B9D', emoji: '👩' },
-  { id: 'chris',   label: 'Chris',   color: '#6B8EFF', emoji: '👦' },
-  { id: 'cookie',  label: 'Cookie',  color: '#FFB347', emoji: '🍪' },
-  { id: 'max',     label: 'Max',     color: '#7CFC00', emoji: '🧑' },
-  { id: 'nova',    label: 'Nova',    color: '#DA70D6', emoji: '🌟' },
-  { id: 'reed',    label: 'Reed',    color: '#40E0D0', emoji: '🎵' },
-  { id: 'sage',    label: 'Sage',    color: '#98FB98', emoji: '🌿' },
-  { id: 'zara',    label: 'Zara',    color: '#FF7F50', emoji: '⚡' },
+  { id: 'blank',  label: 'Blank',  color: '#7DD8D8' }, // cyan plain circle
+  { id: 'belle',  label: 'Belle',  color: '#FFD700' }, // yellow bell
+  { id: 'crux',   label: 'Crux',   color: '#FF69D6' }, // pink plus cross
+  { id: 'cookie', label: 'Cookie', color: '#C4944A' }, // brown cookie bite
+  { id: 'tri',    label: 'Tri',    color: '#6B5CFF' }, // purple inverted triangle
+  { id: 'bloom',  label: 'Bloom',  color: '#B39DDB' }, // light purple flower
+  { id: 'pop',    label: 'Pop',    color: '#FF2222' }, // red lollipop
+  { id: 'luna',   label: 'Luna',   color: '#1A1A6E' }, // dark navy moon
+  { id: 'loop',   label: 'Loop',   color: '#29A8E0' }, // blue ring/donut
+  { id: 'sol',    label: 'Sol',    color: '#F5A623' }, // orange starburst
+  { id: 'hex',    label: 'Hex',    color: '#32A84A' }, // green X
 ]
 
 const REPUTATION_TITLES = [

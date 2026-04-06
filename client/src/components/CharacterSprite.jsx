@@ -1,149 +1,117 @@
-import { useRef, useMemo } from 'react'
-import { useFrame, useLoader } from '@react-three/fiber'
-import { TextureLoader } from 'three'
+import { useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
+import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import IdentityBillboard from './IdentityBillboard'
-import { useGameStore, HEAD_ICONS } from '../store/gameStore'
+import { HEAD_ICONS } from '../store/gameStore'
 
 /**
- * CharacterSprite — 2.5D billboard character using plane geometry.
+ * CharacterSprite — 2.5D character rendered as a white icon card in 3D space.
  *
- * Asset setup:
- *   - Place CharacterIcons-Base.png in /public/assets/CharacterIcons-Base.png
- *   - Place head icons as /public/assets/heads/[id].png (belle.png, chris.png, etc.)
+ * The head icon PNGs (white bg, bold shape) are displayed as HTML image elements
+ * positioned in world space via @react-three/drei's <Html>. This preserves the
+ * original icon aesthetic without needing transparent PNGs.
  *
- * Features:
- *   - Phase 2: IdentityBillboard (username/title) rendered above
- *   - Phase 3: Social Heartbeat — vertical bob + breathing scale via Math.sin()
- *   - Head-turn skew: skewX applied to head mesh based on movement direction
+ * Phase 3: Social Heartbeat — vertical bob + breathing scale via Math.sin()
+ * Phase 2: Head-turn skew via CSS transform on movement direction
  */
-
-// Fallback procedural texture when PNGs are not available
-function makeColorTexture(color) {
-  const canvas = document.createElement('canvas')
-  canvas.width = 64; canvas.height = 64
-  const ctx = canvas.getContext('2d')
-  // Body
-  ctx.fillStyle = '#888'
-  ctx.fillRect(8, 24, 48, 40)
-  // Head circle
-  ctx.fillStyle = color
-  ctx.beginPath()
-  ctx.arc(32, 18, 16, 0, Math.PI * 2)
-  ctx.fill()
-  // Eyes
-  ctx.fillStyle = '#000'
-  ctx.beginPath(); ctx.arc(25, 16, 3, 0, Math.PI * 2); ctx.fill()
-  ctx.beginPath(); ctx.arc(39, 16, 3, 0, Math.PI * 2); ctx.fill()
-  // Smile
-  ctx.strokeStyle = '#000'; ctx.lineWidth = 2
-  ctx.beginPath(); ctx.arc(32, 20, 8, 0, Math.PI); ctx.stroke()
-  return new THREE.CanvasTexture(canvas)
-}
-
 export default function CharacterSprite({
   position = [0, 0, 0],
   username = 'Player',
-  headId = 'belle',
+  headId = 'blank',
   reputation = 0,
   titleOverride = null,
-  isMoving = false,
-  moveDir = 0, // -1 left, 0 neutral, 1 right
+  moveDir = 0, // -1 left, 0 neutral, +1 right
 }) {
   const groupRef = useRef()
-  const bodyRef = useRef()
-  const headRef = useRef()
+  const bobRef = useRef(0)
+  const skewRef = useRef(0)
+  const scaleRef = useRef(1)
+  const iconRef = useRef(null)
 
   const iconData = HEAD_ICONS.find(h => h.id === headId) ?? HEAD_ICONS[0]
 
-  // Load textures — fall back gracefully if missing
-  const bodyTex = useMemo(() => {
-    const loader = new TextureLoader()
-    // Try loading the real base sprite
-    const tex = loader.load(
-      '/assets/CharacterIcons-Base.png',
-      undefined,
-      undefined,
-      () => { /* on error: texture stays default */ }
-    )
-    tex.magFilter = THREE.NearestFilter
-    return tex
-  }, [])
-
-  const headTex = useMemo(() => {
-    const loader = new TextureLoader()
-    const fallback = makeColorTexture(iconData.color)
-    const tex = loader.load(
-      `/assets/heads/${headId}.png`,
-      undefined,
-      undefined,
-      () => { tex.image = fallback.image; tex.needsUpdate = true }
-    )
-    tex.magFilter = THREE.NearestFilter
-    return tex
-  }, [headId, iconData.color])
-
-  // ─── Phase 3: Social Heartbeat ───────────────────────────────────────────
-  const IDLE = {
-    bobFreq: 1.4,       // Hz of vertical bob
-    bobAmp: 0.06,       // world units
-    breathFreq: 1.2,    // Hz of scale breathing
-    breathAmp: 0.04,    // scale delta
-    breathBase: 1.0,
-  }
-
-  // ─── Phase 2 / Head-Turn Skew ────────────────────────────────────────────
-  const SKEW_MAX = 0.25  // radians-ish of shear
+  // ─── Phase 3: Social Heartbeat ────────────────────────────────────────────
+  const BOB_FREQ = 1.4
+  const BOB_AMP  = 0.055
+  const BREATH_FREQ = 1.2
+  const BREATH_AMP  = 0.035
 
   useFrame(({ clock }) => {
-    if (!groupRef.current) return
     const t = clock.getElapsedTime()
 
-    // Vertical bob — applied to whole group
-    groupRef.current.position.y =
-      position[1] + Math.sin(t * IDLE.bobFreq * Math.PI * 2) * IDLE.bobAmp
-
-    // Breathing stretch — applied to body scale.Y
-    if (bodyRef.current) {
-      const breathe = IDLE.breathBase + Math.sin(t * IDLE.breathFreq * Math.PI * 2) * IDLE.breathAmp
-      bodyRef.current.scale.y = breathe
+    // Vertical bob — group Y offset
+    if (groupRef.current) {
+      groupRef.current.position.set(
+        position[0],
+        position[1] + Math.sin(t * BOB_FREQ * Math.PI * 2) * BOB_AMP,
+        position[2]
+      )
     }
 
-    // Head skew based on movement direction
-    if (headRef.current) {
-      const targetSkew = moveDir * SKEW_MAX
-      // Lerp toward target
-      headRef.current.rotation.z = THREE.MathUtils.lerp(
-        headRef.current.rotation.z,
-        -targetSkew * 0.3,
-        0.15
-      )
-      // X shear via matrix isn't trivial — use a slight scale.x skew trick
-      const targetScaleX = 1 + moveDir * 0.12
-      headRef.current.scale.x = THREE.MathUtils.lerp(headRef.current.scale.x, targetScaleX, 0.12)
+    // Breathing + head skew — applied via CSS on the Html element
+    const breathScale = 1 + Math.sin(t * BREATH_FREQ * Math.PI * 2) * BREATH_AMP
+    scaleRef.current = breathScale
+
+    // Lerp skew toward movement direction
+    const targetSkew = moveDir * 18 // degrees
+    skewRef.current = skewRef.current + (targetSkew - skewRef.current) * 0.12
+
+    if (iconRef.current) {
+      const skew = skewRef.current
+      iconRef.current.style.transform = `scaleY(${breathScale}) skewX(${-skew * 0.4}deg) scaleX(${1 + moveDir * 0.08})`
     }
   })
 
+  const BASE_URL = import.meta.env.BASE_URL ?? '/'
+
   return (
     <group ref={groupRef} position={position}>
-      {/* Body sprite */}
-      <mesh ref={bodyRef} position={[0, -0.1, 0]}>
-        <planeGeometry args={[0.8, 1.0]} />
-        <meshBasicMaterial map={bodyTex} transparent alphaTest={0.1} side={THREE.DoubleSide} />
-      </mesh>
+      {/* Character icon rendered as HTML in world space */}
+      <Html center occlude={false} style={{ pointerEvents: 'none', userSelect: 'none' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+          {/* Head icon */}
+          <div
+            ref={iconRef}
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: 8,
+              overflow: 'hidden',
+              background: '#ffffff',
+              boxShadow: `0 0 0 2px ${iconData.color}88, 0 4px 16px rgba(0,0,0,0.5)`,
+              transformOrigin: 'bottom center',
+              transition: 'box-shadow 0.2s',
+            }}
+          >
+            <img
+              src={`${BASE_URL}assets/heads/${headId}.png`}
+              alt={username}
+              style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+              draggable={false}
+            />
+          </div>
 
-      {/* Head sprite — positioned above body */}
-      <mesh ref={headRef} position={[0, 0.65, 0.01]}>
-        <planeGeometry args={[0.6, 0.6]} />
-        <meshBasicMaterial map={headTex} transparent alphaTest={0.1} side={THREE.DoubleSide} />
-      </mesh>
+          {/* Body stub — colored semicircle matching the icon */}
+          <div
+            style={{
+              width: 38,
+              height: 19,
+              borderRadius: '0 0 38px 38px',
+              background: iconData.color,
+              opacity: 0.85,
+              marginTop: -2,
+            }}
+          />
+        </div>
+      </Html>
 
-      {/* Phase 2: Identity Billboard */}
+      {/* Phase 2: Identity Billboard — floats above character */}
       <IdentityBillboard
         username={username}
         reputation={reputation}
         titleOverride={titleOverride}
-        yOffset={1.4}
+        yOffset={1.1}
       />
     </group>
   )

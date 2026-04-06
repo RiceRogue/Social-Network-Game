@@ -24,7 +24,7 @@ export default function LandingPage() {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 w-full max-w-lg">
+      <div className="relative z-10 w-full max-w-xl">
         {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-5xl font-bold tracking-tight mb-2">
@@ -37,62 +37,54 @@ export default function LandingPage() {
         {/* Card */}
         <div className="bg-[#12131a] border border-slate-800 rounded-2xl p-8 shadow-2xl">
           <h2 className="text-white font-semibold text-lg mb-1">Create Your Identity</h2>
-          <p className="text-slate-500 text-sm mb-6">Choose your avatar and enter the hub.</p>
+          <p className="text-slate-500 text-sm mb-6">Choose your icon and enter the hub.</p>
 
-          {/* Character Grid */}
-          <div className="grid grid-cols-4 gap-3 mb-6">
+          {/* Character Grid — 4 cols, images fill the tile */}
+          <div className="grid grid-cols-4 gap-2 mb-6">
             {HEAD_ICONS.map((icon) => (
               <button
                 key={icon.id}
                 onClick={() => setSelected(icon)}
                 className={`
-                  flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all duration-200
+                  flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all duration-150
                   ${selected?.id === icon.id
-                    ? 'border-cyan-400 bg-cyan-400/10 scale-105'
-                    : 'border-slate-700 bg-slate-800/50 hover:border-slate-500 hover:bg-slate-800'}
+                    ? 'border-cyan-400 bg-cyan-400/10 scale-105 shadow-[0_0_12px_rgba(0,255,255,0.25)]'
+                    : 'border-slate-700 bg-slate-800/40 hover:border-slate-500 hover:bg-slate-800'}
                 `}
               >
-                {/* Avatar: uses head icon image if available, else colored circle */}
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-2xl relative overflow-hidden"
-                  style={{ background: `${icon.color}22`, border: `2px solid ${icon.color}66` }}
-                >
-                  {/* Drop CharacterIcons/[id].png into public/assets/ to use real sprites */}
+                {/* Icon image — white bg is part of the card aesthetic */}
+                <div className="w-14 h-14 rounded-lg overflow-hidden bg-white">
                   <img
-                    src={`/assets/heads/${icon.id}.png`}
+                    src={`/Social-Network-Game/assets/heads/${icon.id}.png`}
                     alt={icon.label}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none'
-                      e.target.nextSibling.style.display = 'flex'
-                    }}
+                    className="w-full h-full object-contain"
+                    draggable={false}
                   />
-                  <span
-                    className="absolute inset-0 items-center justify-center text-2xl"
-                    style={{ display: 'none' }}
-                  >{icon.emoji}</span>
                 </div>
-                <span className="text-xs text-slate-400 truncate w-full text-center">{icon.label}</span>
-                {selected?.id === icon.id && (
-                  <span className="text-cyan-400 text-[10px]">selected</span>
-                )}
+                <span className="text-xs text-slate-400 font-medium">{icon.label}</span>
               </button>
             ))}
           </div>
 
           {/* Selected preview */}
           {selected && (
-            <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg mb-4 border border-slate-700">
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
-                style={{ background: `${selected.color}22`, border: `2px solid ${selected.color}` }}
-              >
-                {selected.emoji}
+            <div className="flex items-center gap-3 p-3 bg-slate-800/60 rounded-xl mb-4 border border-slate-700">
+              <div className="w-12 h-12 rounded-lg overflow-hidden bg-white shrink-0">
+                <img
+                  src={`/Social-Network-Game/assets/heads/${selected.id}.png`}
+                  alt={selected.label}
+                  className="w-full h-full object-contain"
+                  draggable={false}
+                />
               </div>
               <div>
-                <p className="text-white text-sm font-medium">{selected.label}</p>
+                <p className="text-white text-sm font-semibold">{selected.label}</p>
                 <p className="text-slate-500 text-xs">Ready to enter the hub</p>
               </div>
+              <div
+                className="ml-auto w-2 h-2 rounded-full"
+                style={{ background: selected.color, boxShadow: `0 0 6px ${selected.color}` }}
+              />
             </div>
           )}
 
@@ -111,9 +103,7 @@ export default function LandingPage() {
             />
           </div>
 
-          {error && (
-            <p className="text-red-400 text-sm mb-4">{error}</p>
-          )}
+          {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
 
           {/* Enter button */}
           <button
