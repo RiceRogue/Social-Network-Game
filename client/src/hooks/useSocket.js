@@ -2,7 +2,9 @@ import { useEffect, useRef } from 'react'
 import { io } from 'socket.io-client'
 import { useGameStore } from '../store/gameStore'
 
-let socketInstance = null
+// Detect if running on GitHub Pages (no backend available)
+const SERVER_URL = import.meta.env.VITE_SERVER_URL ?? 'http://localhost:3001'
+const IS_STATIC = import.meta.env.VITE_STATIC_MODE === 'true'
 
 export function useSocket() {
   const socketRef = useRef(null)
@@ -16,11 +18,14 @@ export function useSocket() {
   } = useGameStore()
 
   useEffect(() => {
-    if (!profile) return
+    if (!profile || IS_STATIC) return
 
-    const socket = io('http://localhost:3001', { autoConnect: true })
+    const socket = io(SERVER_URL, {
+      autoConnect: true,
+      reconnectionAttempts: 3,
+      timeout: 5000,
+    })
     socketRef.current = socket
-    socketInstance = socket
 
     socket.on('connect', () => {
       console.log('[Socket] Connected:', socket.id)
@@ -29,6 +34,12 @@ export function useSocket() {
         headId: profile.headId,
         reputation: profile.reputation ?? 0,
       })
+    })
+
+    socket.on('connect_error', () => {
+      console.warn('[Socket] Could not reach server — running in offline mode.')
+      addMessage({ type: 'system', text: 'Offline mode — multiplayer unavailable.' })
+      socket.disconnect()
     })
 
     socket.on('player:list', (players) => {
@@ -73,7 +84,6 @@ export function useSocket() {
 
     return () => {
       socket.disconnect()
-      socketInstance = null
     }
   }, [profile?.username])
 
@@ -83,7 +93,10 @@ export function useSocket() {
 
   function sendChat(text) {
     if (!text.trim()) return
-    socketRef.current?.emit('chat:message', { text })
+    if (!IS_STATIC) {
+      socketRef.current?.emit('chat:message', { text })
+    }
+    // Always echo locally so chat feels responsive
     addMessage({
       type: 'chat',
       username: profile?.username ?? 'You',
@@ -94,6 +107,10 @@ export function useSocket() {
   }
 
   function joinQueue() {
+    if (IS_STATIC) {
+      addMessage({ type: 'system', text: 'Matchmaking requires the live server.' })
+      return
+    }
     socketRef.current?.emit('match:join-queue')
     setInQueue(true)
     addMessage({ type: 'system', text: 'Joined the Line War queue...' })
