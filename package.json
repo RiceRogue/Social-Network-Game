@@ -1,0 +1,15 @@
+{
+  "name": "social-network-game",
+  "version": "1.0.0",
+  "description": "A 2.5D social hub game inspired by Club Penguin — Identity Economy themed",
+  "scripts": {
+    "dev": "concurrently -n client,server -c cyan,yellow \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "start": "concurrently -n client,server -c cyan,yellow \"npm run preview --prefix client\" \"npm start --prefix server\"",
+    "build": "npm run build --prefix client"
+  },
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
