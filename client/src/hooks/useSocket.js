@@ -53,7 +53,7 @@ export function useSocket() {
     socket.on('player:joined', (player) => {
       if (player.id !== socket.id) {
         updateOtherPlayer(player.id, player)
-        addMessage({ type: 'system', text: `${player.username} joined the hub.` })
+        addMessage({ type: 'system', text: `${player.username} joined the network.` })
       }
     })
 
@@ -65,7 +65,7 @@ export function useSocket() {
       const players = useGameStore.getState().otherPlayers
       const name = players[id]?.username ?? 'Someone'
       removeOtherPlayer(id)
-      addMessage({ type: 'system', text: `${name} left the hub.` })
+      addMessage({ type: 'system', text: `${name} left the network.` })
     })
 
     socket.on('chat:message', (msg) => {
