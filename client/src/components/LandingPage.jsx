@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useGameStore, HEAD_ICONS } from '../store/gameStore'
-import HeadIcon from './HeadIcon'
 
 export default function LandingPage() {
   const { setProfile } = useGameStore()
@@ -46,31 +45,52 @@ export default function LandingPage() {
                 className={`
                   flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all duration-150
                   ${selected?.id === icon.id
-                    ? 'border-cyan-400 bg-cyan-400/10 scale-105 shadow-[0_0_12px_rgba(0,255,255,0.25)]'
-                    : 'border-slate-700 bg-slate-800/40 hover:border-slate-500 hover:bg-slate-800'}
+                    ? 'border-cyan-400 scale-105 shadow-[0_0_12px_rgba(0,255,255,0.25)]'
+                    : 'border-slate-700 hover:border-slate-500'}
                 `}
+                style={{
+                  background: selected?.id === icon.id ? `${icon.color}18` : 'rgba(30,32,42,0.4)',
+                }}
               >
-                <HeadIcon
-                  headId={icon.id}
-                  color={icon.color}
-                  size={56}
+                {/* Black background tile with PNG */}
+                <div
+                  className="w-14 h-14 rounded-lg overflow-hidden flex items-center justify-center"
                   style={{
+                    background: '#000',
                     boxShadow: selected?.id === icon.id
-                      ? `0 0 0 2px ${icon.color}, 0 0 8px ${icon.color}66`
-                      : `0 0 0 1px ${icon.color}44`,
+                      ? `0 0 0 2px ${icon.color}, 0 0 10px ${icon.color}66`
+                      : `0 0 0 1px ${icon.color}33`,
                   }}
-                />
-                <span className="text-xs text-slate-400 font-medium">{icon.label}</span>
+                >
+                  <img
+                    src={`/Social-Network-Game/assets/heads/${icon.id}.png`}
+                    alt={icon.label}
+                    className="w-full h-full object-contain"
+                    draggable={false}
+                  />
+                </div>
+                <span className="text-xs font-medium" style={{ color: icon.color }}>{icon.label}</span>
               </button>
             ))}
           </div>
 
           {/* Selected preview */}
           {selected && (
-            <div className="flex items-center gap-3 p-3 bg-slate-800/60 rounded-xl mb-4 border border-slate-700">
-              <HeadIcon headId={selected.id} color={selected.color} size={48} />
+            <div className="flex items-center gap-3 p-3 rounded-xl mb-4 border border-slate-700"
+              style={{ background: `${selected.color}10` }}>
+              <div
+                className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
+                style={{ background: '#000', boxShadow: `0 0 0 2px ${selected.color}` }}
+              >
+                <img
+                  src={`/Social-Network-Game/assets/heads/${selected.id}.png`}
+                  alt={selected.label}
+                  className="w-full h-full object-contain"
+                  draggable={false}
+                />
+              </div>
               <div>
-                <p className="text-white text-sm font-semibold">{selected.label}</p>
+                <p className="font-semibold text-sm" style={{ color: selected.color }}>{selected.label}</p>
                 <p className="text-slate-500 text-xs">Ready to enter the hub</p>
               </div>
               <div
