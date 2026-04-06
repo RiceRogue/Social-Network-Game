@@ -1,8 +1,8 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
-import * as THREE from 'three'
 import IdentityBillboard from './IdentityBillboard'
+import HeadIcon from './HeadIcon'
 import { HEAD_ICONS } from '../store/gameStore'
 
 /**
@@ -63,46 +63,21 @@ export default function CharacterSprite({
     }
   })
 
-  const BASE_URL = import.meta.env.BASE_URL ?? '/'
-
   return (
     <group ref={groupRef} position={position}>
-      {/* Character icon rendered as HTML in world space */}
       <Html center occlude={false} style={{ pointerEvents: 'none', userSelect: 'none' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
-          {/* Head icon */}
+          {/* Head icon — inline SVG, no files needed */}
           <div
             ref={iconRef}
             style={{
-              width: 52,
-              height: 52,
-              borderRadius: 8,
-              overflow: 'hidden',
-              background: '#ffffff',
-              boxShadow: `0 0 0 2px ${iconData.color}88, 0 4px 16px rgba(0,0,0,0.5)`,
               transformOrigin: 'bottom center',
-              transition: 'box-shadow 0.2s',
+              boxShadow: `0 0 0 2px ${iconData.color}88, 0 4px 16px rgba(0,0,0,0.5)`,
+              borderRadius: 8,
             }}
           >
-            <img
-              src={`${BASE_URL}assets/heads/${headId}.png`}
-              alt={username}
-              style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
-              draggable={false}
-            />
+            <HeadIcon headId={headId} color={iconData.color} size={52} />
           </div>
-
-          {/* Body stub — colored semicircle matching the icon */}
-          <div
-            style={{
-              width: 38,
-              height: 19,
-              borderRadius: '0 0 38px 38px',
-              background: iconData.color,
-              opacity: 0.85,
-              marginTop: -2,
-            }}
-          />
         </div>
       </Html>
 

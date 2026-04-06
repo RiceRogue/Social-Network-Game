@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useGameStore, HEAD_ICONS } from '../store/gameStore'
+import HeadIcon from './HeadIcon'
 
 export default function LandingPage() {
   const { setProfile } = useGameStore()
@@ -18,14 +19,12 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Ambient background glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
       </div>
 
       <div className="relative z-10 w-full max-w-xl">
-        {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-5xl font-bold tracking-tight mb-2">
             <span className="text-cyan-400 glow-cyan">SOCIAL</span>
@@ -34,12 +33,11 @@ export default function LandingPage() {
           <p className="text-slate-500 text-sm tracking-widest uppercase">Identity Economy Hub</p>
         </div>
 
-        {/* Card */}
         <div className="bg-[#12131a] border border-slate-800 rounded-2xl p-8 shadow-2xl">
           <h2 className="text-white font-semibold text-lg mb-1">Create Your Identity</h2>
           <p className="text-slate-500 text-sm mb-6">Choose your icon and enter the hub.</p>
 
-          {/* Character Grid — 4 cols, images fill the tile */}
+          {/* Character Grid */}
           <div className="grid grid-cols-4 gap-2 mb-6">
             {HEAD_ICONS.map((icon) => (
               <button
@@ -52,15 +50,16 @@ export default function LandingPage() {
                     : 'border-slate-700 bg-slate-800/40 hover:border-slate-500 hover:bg-slate-800'}
                 `}
               >
-                {/* Icon image — white bg is part of the card aesthetic */}
-                <div className="w-14 h-14 rounded-lg overflow-hidden bg-white">
-                  <img
-                    src={`/Social-Network-Game/assets/heads/${icon.id}.png`}
-                    alt={icon.label}
-                    className="w-full h-full object-contain"
-                    draggable={false}
-                  />
-                </div>
+                <HeadIcon
+                  headId={icon.id}
+                  color={icon.color}
+                  size={56}
+                  style={{
+                    boxShadow: selected?.id === icon.id
+                      ? `0 0 0 2px ${icon.color}, 0 0 8px ${icon.color}66`
+                      : `0 0 0 1px ${icon.color}44`,
+                  }}
+                />
                 <span className="text-xs text-slate-400 font-medium">{icon.label}</span>
               </button>
             ))}
@@ -69,26 +68,18 @@ export default function LandingPage() {
           {/* Selected preview */}
           {selected && (
             <div className="flex items-center gap-3 p-3 bg-slate-800/60 rounded-xl mb-4 border border-slate-700">
-              <div className="w-12 h-12 rounded-lg overflow-hidden bg-white shrink-0">
-                <img
-                  src={`/Social-Network-Game/assets/heads/${selected.id}.png`}
-                  alt={selected.label}
-                  className="w-full h-full object-contain"
-                  draggable={false}
-                />
-              </div>
+              <HeadIcon headId={selected.id} color={selected.color} size={48} />
               <div>
                 <p className="text-white text-sm font-semibold">{selected.label}</p>
                 <p className="text-slate-500 text-xs">Ready to enter the hub</p>
               </div>
               <div
-                className="ml-auto w-2 h-2 rounded-full"
+                className="ml-auto w-2 h-2 rounded-full shrink-0"
                 style={{ background: selected.color, boxShadow: `0 0 6px ${selected.color}` }}
               />
             </div>
           )}
 
-          {/* Username Input */}
           <div className="mb-4">
             <label className="block text-slate-400 text-xs uppercase tracking-wider mb-2">Username</label>
             <input
@@ -105,7 +96,6 @@ export default function LandingPage() {
 
           {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
 
-          {/* Enter button */}
           <button
             onClick={handleCreate}
             disabled={!selected || !username.trim()}
